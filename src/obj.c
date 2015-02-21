@@ -403,6 +403,7 @@ static int Obj_setname(ObjObject *self, PyObject *value, void *closure) {
     glp_set_obj_name(LP, NULL);
     return 0;
   }
+  if(!PyString_Check(value)) return NULL;
   name = PyString_AsString(value);
   if (name==NULL) return -1;
   if (PyString_Size(value) > 255) {

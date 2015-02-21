@@ -210,6 +210,7 @@ static int Bar_setname(BarObject *self, PyObject *value, void *closure) {
       (LP, Bar_Index(self)+1, NULL);
     return 0;
   }
+  if(!PyString_Check(value)) return NULL;
   name = PyString_AsString(value);
   if (name==NULL) return -1;
   if (PyString_Size(value) > 255) {
