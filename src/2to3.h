@@ -10,10 +10,15 @@
 #define PyInt_FromSize_t(v) PyLong_FromSize_t(v)
 
 #define PyString_FromString(v) PyUnicode_FromString(v)
-#define PyString_AsString(o) PyUnicode_AsUTF8(o)
 #define PyString_Size(o) PyUnicode_GET_SIZE(o)
 #define PyString_FromFormat(fmt, ...) PyUnicode_FromFormat(fmt, __VA_ARGS__)
 #define PyString_Check(o) PyUnicode_Check(o)
+
+#if PY_MINOR_VERSION >= 3
+#define PyString_AsString PyUnicode_AsUTF8
+#else
+#define PyString_AsString(o) PyBytes_AsString(PyUnicode_AsUTF8String(o))
+#endif
 
 #endif
 
