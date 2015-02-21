@@ -1,0 +1,14 @@
+language: python
+
+python:
+  - "3.4"
+
+before_install:
+  - sudo apt-get install -qq libglpk-dev glpk-utils
+
+install:
+  - pip install -e .
+
+script:
+  - "python tests/test_glpk.py"
+
