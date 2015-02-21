@@ -6,7 +6,7 @@ python:
 before_install:
   - wget http://ftp.gnu.org/gnu/glpk/glpk-4.55.tar.gz
   - tar vxfz glpk-4.55.tar.gz
-  - cd glpk-4.55 && ./configure --prefix=/usr && make && make install
+  - cd glpk-4.55 && ./configure --prefix=/usr && make && sudo make install
 
 install:
   - pip install -e .
