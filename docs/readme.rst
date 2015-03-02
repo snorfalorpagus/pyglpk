@@ -11,6 +11,10 @@ PyGLPK is a Python module which encapsulates the functionality of the `GNU Linea
 License
 =======
 
+PyGLPK (both the software and documentation) are released under the `GNU General Public License <http://www.gnu.org/copyleft/gpl.html>`_ (version 3).
+
+© Copyright 2007 – 2015  Thomas Finley, Bradford Boyle, Joshua Arnott
+
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
 the Free Software Foundation, either version 3 of the License, or
@@ -40,7 +44,7 @@ Building this module requires the following external dependencies:
 * `Python <https://www.python.org/>`_ 2.6 or greater, or 3.2 or greater
 * `GLPK <https://www.gnu.org/software/glpk/>`_ version 4.45 or greater
 
-For compatibility with older versions of Python or GLPK, see `PyGLPK version 0.3 <http://tfinley.net/software/pyglpk/>`_.
+GLPK 4.45 was selected because it is the version distributed with the current `Ubuntu LTS <https://wiki.ubuntu.com/LTS>`_ (12.04). For compatibility with older versions of Python or GLPK, see `PyGLPK version 0.3 <http://tfinley.net/software/pyglpk/>`_. Note that the latest version of GLPK that can be used with PyGLPK 0.3 is GLPK 4.47.
 
 On Linux (and other \*nix), GLPK can be built from source 
 
