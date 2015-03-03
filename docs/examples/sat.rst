@@ -11,14 +11,14 @@ Suppose one has a CNF expression, that is, a conjunction (and-ing) of several di
 
 .. math::
 
-    ( ¬x1 ∨ ¬x3 ∨ ¬x4 ) ∧ ( x2 ∨ x3 ∨ ¬x4 ) ∧ ( x1 ∨ ¬x2 ∨ x4 ) ∧ ( x1 ∨ x3 ∨ x4 ) ∧ ( ¬x1 ∨ x2 ∨ ¬x3 )
+    ( ¬x_1 ∨ ¬x_3 ∨ ¬x_4 ) ∧ ( x_2 ∨ x_3 ∨ ¬x_4 ) ∧ ( x_1 ∨ ¬x2 ∨ x_4 ) ∧ ( x_1 ∨ x_3 ∨ x_4 ) ∧ ( ¬x_1 ∨ x_2 ∨ ¬x_3 )
 
 Suppose we want to find truth values to all four :math:`x_i` variables so that the CNF expression is true. This problem has been viewed from many different ways, but we'll see how to encode and (we hope) solve it within a mixed-linear program. We will build a function `solve_sat` to satisfy a given CNF.
 
 First, we need to define how we encode our input CNF expressions that we want to satisfy:
 
 * Each logical literal is represented as either a positive or negative integer, where i and -i correspond to the logical literals :math:`x_i` and :math:`¬x_i`, respectively.
-* Each clause in the expression, i.e., disjunction of literals, is represented as a tuple of such encoding of literals, e.g., `(-1, 2, -3)` represents the disjunction :math:`( ¬x1 ∨ x2 ∨ ¬x3 )`.
+* Each clause in the expression, i.e., disjunction of literals, is represented as a tuple of such encoding of literals, e.g., `(-1, 2, -3)` represents the disjunction :math:`( ¬x_1 ∨ x_2 ∨ ¬x_3 )`.
 * The entire conjunctive expression is a list of such tuples, e.g., the expression above would have encoding:
 * `[(-1, -3, -4), (2, 3, -4), (1, -2, 4), (1, 3, 4), (-1, 2, -3)]`
 
@@ -193,7 +193,7 @@ So, how does this work? Recall our CNF formula.
 
 .. math::
 
-    ( ¬x1 ∨ ¬x3 ∨ ¬x4 ) ∧ ( x2 ∨ x3 ∨ ¬x4 ) ∧ ( x1 ∨ ¬x2 ∨ x4 ) ∧ ( x1 ∨ x3 ∨ x4 ) ∧ ( ¬x1 ∨ x2 ∨ ¬x3 )
+    ( ¬x_1 ∨ ¬x_3 ∨ ¬x_4 ) ∧ ( x_2 ∨ x_3 ∨ ¬x_4 ) ∧ ( x_1 ∨ ¬x2 ∨ x_4 ) ∧ ( x_1 ∨ x_3 ∨ x_4 ) ∧ ( ¬x_1 ∨ x_2 ∨ ¬x_3 )
 
 This has the encoding
 
@@ -214,7 +214,7 @@ This prints out:
 
     [True, True, False, False]
 
-So, :math:`x_1`=T, :math:`x_2`=T, :math:`x_3`=F, and :math:`x_4`=F. Is this a satisfying assignment? The first and second clauses are true because :math:`¬x_4`. The third and fourth clauses are true because :math:`x_1`. The fifth (last) clause is true because :math:`x_2`.
+So, :math:`x_1=T`, :math:`x_2=T`, :math:`x_3=F`, and :math:`x_4=F`. Is this a satisfying assignment? The first and second clauses are true because :math:`¬x_4`. The third and fourth clauses are true because :math:`x_1`. The fifth (last) clause is true because :math:`x_2`.
 
 Now suppose we input the expression :math:`x_1 ∧ ¬x_1`, which is plainly unsatisfiable.
 
