@@ -6,7 +6,8 @@ The PyGLPK User Manual
 
     readme.rst
     discussion.rst
-    object_doc.rst    
+    object_doc.rst
+    autodoc.rst
     release.rst
     
     examples.rst
