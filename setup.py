@@ -57,8 +57,8 @@ if gmp_lib_path is not None:
 sources = 'glpk 2to3 lp barcol bar obj util kkt tree environment'
 source_roots = sources.split()
 
-_glpk = Extension(
-    'glpk.glpk',
+glpk = Extension(
+    'glpk',
     sources=[os.path.join('src', '{}.c'.format(root)) for root in source_roots],
     library_dirs=[lib_dir,],
     include_dirs=[include_dir,],
@@ -95,9 +95,8 @@ setup_args = dict(
         'Topic :: Scientific/Engineering :: Mathematics',
         'Topic :: Software Development :: Libraries :: Python Modules',
     ],
-    ext_modules = [_glpk,],
+    ext_modules = [glpk,],
     distclass = BinaryDistribution,
-    packages = ['glpk'],
 )
 
 setup(**setup_args)
