@@ -1,102 +1,103 @@
-from distutils.core import setup, Extension
-import sys, os, os.path, re
+from __future__ import print_function
 
-useparams = False
+import os
+try:
+    import setuptools
+except ImportError:
+    pass
+from distutils.core import setup, Extension, Distribution
+from ctypes.util import find_library
+
+def find_lib(name):
+    """
+    Attempt to find the full path to a shared library
+    
+    Parameters
+    ----------
+    name : string
+        Name of the library, e.g. 'glpk'
+    
+    Returns
+    -------
+    Full path to the library, e.g. '/usr/lib64/libglpk.so'
+    """
+    # try ctypes.util.find_library
+    path = find_library(name)
+    if os.path.exists(path):
+        return path
+    # try whereis
+    path = os.popen('whereis lib{}'.format(name)).read().strip()
+    if path is not None:
+        path = ' '.join(path.split(' ')[1:])
+        if os.path.exists(path):
+            return path
+    # try ldconfig
+    data = os.popen('/sbin/ldconfig -p').read()
+    candidates = sorted([line for line in data.split('\n') if '{}.'.format(name) in line], key=lambda s: s.split(' ')[0])
+    if candidates:
+        path = candidates[0].split(' => ')[1]
+        if os.path.exists(path):
+            return path
+
+glpk_lib_path = find_lib('glpk')
+if not glpk_lib_path:
+    raise RuntimeError("Couldn't find libglpk.")
+
+lib_dir = os.path.dirname(glpk_lib_path)
+prefix = os.path.dirname(lib_dir)
+include_dir = os.path.join(prefix, 'include')
+
+libraries = ['glpk']
+
+# libgmp is an optional dependency of libglpk
+gmp_lib_path = find_lib('gmp')
+if gmp_lib_path is not None:
+    libraries.append('gmp')
 
 sources = 'glpk 2to3 lp barcol bar obj util kkt tree environment'
 source_roots = sources.split()
-if useparams: source_roots.append('params')
 
-# This build process will not work with anything prior to GLPK 4.16,
-# since there were many notable changes in GLPK including,
-# importantly, something which actually contains the version number.
+_glpk = Extension(
+    'glpk.glpk',
+    sources=[os.path.join('src', '{}.c'.format(root)) for root in source_roots],
+    library_dirs=[lib_dir,],
+    include_dirs=[include_dir,],
+    libraries=libraries,
+)
 
-libdirs, incdirs, extraobs = [], [], []
-
-# The glpver argument is one which is used only for the purposes of
-# PyGLPK development, and will be of no use or interest to the
-# standard practitioner.  In order to assure compatibility with the
-# many GLPK versions which exist, it is helpful to build against one
-# of many
-
-# This is very dirty.
-m = re.match('glpver=(\d+)', sys.argv[-1])
-if m:
-    # We have defined that we want to build to a local GLPK version.
-    minor_version = int(m.group(1))
-    assert minor_version >= 16
-    sys.argv = sys.argv[:-1]
-    libdirs.append(os.path.join('locals', '4.%d'%minor_version, 'lib'))
-    incdirs.append(os.path.join('locals', '4.%d'%minor_version, 'include'))
-    if minor_version<37:
-        libs = ['glpk.0.%d.0'%(minor_version-15)]
-    else:
-        libs = ['glpk.0']
-    print (libdirs, incdirs)
-else:
-    # Try to get which is the executable path, and infer additional
-    # library and include directories from there, based on a call to
-    # whatever glpsol we find.
-    glpsol_path = os.popen('which glpsol').read().strip()
-    # If we can't find it, just hope that the default libs are correct.
-    if glpsol_path:
-        glpsol_path = os.path.abspath(glpsol_path)
-        head, tail = os.path.split(glpsol_path)
-        head, tail = os.path.split(head)
-        libdirs.append(os.path.join(head, 'lib'))
-        incdirs.append(os.path.join(head, 'include'))
-
-# USERS DO CUSTOM INSTRUCTIONS HERE
-# Perhaps set your libdir manually in case neither system defaults,
-# nor the cleverness does not work.
-
-#libs = ['glpk.something']
-#libdirs = ['/my/dirs/are/here/lib']
-#incdirs = ['/my/dirs/are/here/include']
-
-# If the user did not define libraries themselves, set that up.  We
-# require both glpk and gmp.
-try:
-    libs
-except NameError:
-    # The user nor test code did not set libs up yet.
-    libs = ['glpk', 'gmp']
-
-incdirs.append('src')
-
-macros = []
-if useparams: macros.append(('USEPARAMS', None))
-
-# Now, finally, define that module!
-module1 = Extension(
-    'glpk',
-    sources = [os.path.join('src',r+'.c') for r in source_roots],
-    define_macros = macros,
-    library_dirs = libdirs, include_dirs = incdirs,
-    libraries = libs, extra_objects = extraobs)
+class BinaryDistribution(Distribution):
+    def is_pure(self):
+        return False
 
 ld = """The PyGLPK module gives one access to the functionality
 of the GNU Linear Programming Kit.  
 """
 
-setup(name='glpk',
-      version='0.4',
-      description='PyGLPK, a Python module encapsulating GLPK.',
-      long_description=ld,
-      author='Thomas Finley',
-      author_email='tfinley@gmail.com',
-      url='http://tfinley.net/software/pyglpk/',
-      maintainer='Bradford D. Boyle',
-      maintainer_email='bradford.d.boyle@gmail.com',
-      license='GPL',
-      classifiers=[
-          'Development Status :: 3 - Alpha',
-          'Intended Audience :: Science/Research',
-          'License :: OSI Approved :: GNU General Public License (GPL)',
-          'Programming Language :: C',
-          'Programming Language :: Python',
-          'Operating System :: POSIX',
-          'Operating System :: MacOS :: MacOS X',
-          'Topic :: Scientific/Engineering :: Mathematics',
-          'Topic :: Software Development :: Libraries :: Python Modules' ],
-      ext_modules=[module1])
+setup_args = dict(
+    name = 'glpk',
+    version ='0.4',
+    description ='PyGLPK, a Python module encapsulating GLPK.',
+    long_description = ld,
+    author = 'Thomas Finley',
+    author_email = 'tfinley@gmail.com',
+    url = 'http://tfinley.net/software/pyglpk/',
+    maintainer = 'Bradford D. Boyle',
+    maintainer_email = 'bradford.d.boyle@gmail.com',
+    license = 'GPL',
+    classifiers = [
+        'Development Status :: 3 - Alpha',
+        'Intended Audience :: Science/Research',
+        'License :: OSI Approved :: GNU General Public License (GPL)',
+        'Programming Language :: C',
+        'Programming Language :: Python',
+        'Operating System :: POSIX',
+        'Operating System :: MacOS :: MacOS X',
+        'Topic :: Scientific/Engineering :: Mathematics',
+        'Topic :: Software Development :: Libraries :: Python Modules',
+    ],
+    ext_modules = [_glpk,],
+    distclass = BinaryDistribution,
+    packages = ['glpk'],
+)
+
+setup(**setup_args)
